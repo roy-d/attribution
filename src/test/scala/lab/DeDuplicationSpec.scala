@@ -28,7 +28,6 @@ class DeDuplicationSpec extends FlatSpec with MustMatchers with SparkSupport {
   it should "allow de-duplication" in {
     val events = eventsDF.map(Event.parse)
     val deDuped = getDeDupedEvents(events)
-    deDuped.foreach(println)
 
     deDuped.collect.length must ===(3)
 
