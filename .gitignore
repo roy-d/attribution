@@ -1,0 +1,7 @@
+.idea/*
+project/target/*
+project/project/target/*
+target/*
+data/output/*
+data/runs/*
+
