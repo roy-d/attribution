@@ -34,7 +34,7 @@ object Transformers {
   def getCountOfEvents(advUserEvents: RDD[((Int, String), Seq[Event])]): RDD[(Int, String, Int)] = advUserEvents
     .flatMap { case ((a, _), es) => es.map(e => ((a, e.eventType), e)) }
     .groupByKey
-    .mapValues(_.size)
+    .mapValues(_.map(_.eventId).toSet.size)
     .map { case ((a, et), c) => (a, et, c) }
 
   def getCountOfUsers(advUserEvents: RDD[((Int, String), Seq[Event])]): RDD[(Int, String, Int)] = advUserEvents
