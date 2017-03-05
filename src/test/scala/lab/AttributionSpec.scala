@@ -41,7 +41,6 @@ class AttributionSpec extends FlatSpec with MustMatchers with SparkSupport {
     impressions.collect.length must ===(3)
 
     val firstImpressions = impressions.groupByKey.mapValues(firstImpression)
-    firstImpressions.foreach(println)
     firstImpressions.collect.length must ===(2)
   }
 
@@ -51,7 +50,6 @@ class AttributionSpec extends FlatSpec with MustMatchers with SparkSupport {
     val firstImpressions = impressions.groupByKey.mapValues(firstImpression)
     val eventImpressions = firstImpressions.fullOuterJoin(events).groupByKey()
 
-    eventImpressions.foreach(println)
     eventImpressions.collect.length must ===(3)
   }
 
@@ -63,11 +61,9 @@ class AttributionSpec extends FlatSpec with MustMatchers with SparkSupport {
     val advUserEvents = eventImpressionJoin.groupByKey().mapValues(attributedEvents)
 
     val countOfEvents = getCountOfEvents(advUserEvents)
-    countOfEvents.foreach(println)
     countOfEvents.collect.length must ===(2)
 
     val countOfUsers = getCountOfUsers(advUserEvents)
-    countOfUsers.foreach(println)
     countOfUsers.collect.length must ===(2)
   }
 
