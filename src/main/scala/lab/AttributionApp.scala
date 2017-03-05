@@ -46,8 +46,10 @@ object AttributionApp extends App {
 
   val eventsPair = deDupedEvents.map(event => ((event.advertiserId, event.userId), event))
   val impressionsPair = impressions.map(impression => ((impression.advertiserId, impression.userId), impression))
+  val firstImpressions = impressionsPair
+    .groupByKey.mapValues(firstImpression) // OPTIMIZATION based on Working Assumption #2 
 
-  val eventImpressionJoin = impressionsPair.fullOuterJoin(eventsPair)
+  val eventImpressionJoin = firstImpressions.fullOuterJoin(eventsPair)
   val advUserEvents: RDD[((Int, String), Seq[Event])] = eventImpressionJoin.groupByKey().mapValues(attributedEvents)
 
   advUserEvents.cache()

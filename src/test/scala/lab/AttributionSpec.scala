@@ -36,10 +36,20 @@ class AttributionSpec extends FlatSpec with MustMatchers with SparkSupport {
     impressions.collect.length must ===(3)
   }
 
+  it should "allow filtering first impressions" in {
+    val impressions = impressionsDF.map(Impression.parse).map(impression => ((impression.advertiserId, impression.userId), impression))
+    impressions.collect.length must ===(3)
+
+    val firstImpressions = impressions.groupByKey.mapValues(firstImpression)
+    firstImpressions.foreach(println)
+    firstImpressions.collect.length must ===(2)
+  }
+
   "Both DataFrames" should "allow full outer join by advertiser and user" in {
     val events = eventsDF.map(Event.parse).map(event => ((event.advertiserId, event.userId), event))
     val impressions = impressionsDF.map(Impression.parse).map(impression => ((impression.advertiserId, impression.userId), impression))
-    val eventImpressions = impressions.fullOuterJoin(events).groupByKey()
+    val firstImpressions = impressions.groupByKey.mapValues(firstImpression)
+    val eventImpressions = firstImpressions.fullOuterJoin(events).groupByKey()
 
     eventImpressions.foreach(println)
     eventImpressions.collect.length must ===(3)
@@ -48,7 +58,8 @@ class AttributionSpec extends FlatSpec with MustMatchers with SparkSupport {
   it should "allow attribution" in {
     val events = eventsDF.map(Event.parse).map(event => ((event.advertiserId, event.userId), event))
     val impressions = impressionsDF.map(Impression.parse).map(impression => ((impression.advertiserId, impression.userId), impression))
-    val eventImpressionJoin = impressions.fullOuterJoin(events)
+    val firstImpressions = impressions.groupByKey.mapValues(firstImpression)
+    val eventImpressionJoin = firstImpressions.fullOuterJoin(events)
     val advUserEvents = eventImpressionJoin.groupByKey().mapValues(attributedEvents)
 
     val countOfEvents = getCountOfEvents(advUserEvents)
