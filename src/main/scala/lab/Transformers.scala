@@ -42,4 +42,7 @@ object Transformers {
     .groupByKey
     .mapValues(_.toSet.size)
     .map { case ((a, et), c) => (a, et, c) }
+
+  def firstImpression(impressions: Iterable[Impression]): Impression = impressions
+    .min(Ordering[Int].on[Impression](_.timestamp))
 }
