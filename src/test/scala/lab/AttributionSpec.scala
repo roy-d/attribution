@@ -7,16 +7,18 @@ import org.scalatest.{FlatSpec, MustMatchers}
 class AttributionSpec extends FlatSpec with MustMatchers with SparkSupport {
   //| timestamp  | event_id  | advertiser_id  | user_id | event_type |
   private val eventRows = Seq(
-    Row(1450631448, "event1", 1, "60b74052-fd7e-48e4-aa61-3c14c9c714d5", "eventType1"),
-    Row(1450631451, "event2", 1, "60b74052-fd7e-48e4-aa61-3c14c9c714d5", "eventType1"),
-    Row(1450631452, "event3", 1, "60b74052-fd7e-48e4-aa61-3c14c9c714d5", "eventType1"),
-    Row(1450631453, "event4", 1, "60b74052-fd7e-48e4-aa61-3c14c9c714d5", "eventType2"),
-    Row(1450631464, "event5", 1, "16340204-80e3-411f-82a1-e154c0845cae", "eventType1"),
-    Row(1450631466, "event6", 2, "60b74052-fd7e-48e4-aa61-3c14c9c714d5", "eventType1")
+    Row(1450631445, "event1", 1, "60b74052-fd7e-48e4-aa61-3c14c9c714d5", "eventType1"), //No
+    Row(1450631448, "event2", 1, "60b74052-fd7e-48e4-aa61-3c14c9c714d5", "eventType1"), //attributed (d5, et1)
+    Row(1450631451, "event3", 1, "60b74052-fd7e-48e4-aa61-3c14c9c714d5", "eventType1"), //attributed (d5, et1)
+    Row(1450631452, "event4", 1, "60b74052-fd7e-48e4-aa61-3c14c9c714d5", "eventType1"), //attributed (d5, et1)
+    Row(1450631453, "event5", 1, "60b74052-fd7e-48e4-aa61-3c14c9c714d5", "eventType2"), //attributed (d5, et2)
+    Row(1450631464, "event6", 1, "16340204-80e3-411f-82a1-e154c0845cae", "eventType1"), //attributed (ae, et1)
+    Row(1450631466, "event7", 2, "60b74052-fd7e-48e4-aa61-3c14c9c714d5", "eventType1")  //No
   )
 
   //| timestamp  | advertiser_id  | creative_id  | user_id |
   private val impressionRows = Seq(
+    Row(1450631446, 1, 1, "60b74052-fd7e-48e4-aa61-3c14c9c714d5"),
     Row(1450631450, 1, 1, "60b74052-fd7e-48e4-aa61-3c14c9c714d5"),
     Row(1450631450, 1, 1, "16340204-80e3-411f-82a1-e154c0845cae")
   )
@@ -26,12 +28,12 @@ class AttributionSpec extends FlatSpec with MustMatchers with SparkSupport {
 
   "Events DataFrame" should "allow parsing" in {
     val events = eventsDF.map(Event.parse)
-    events.collect.length must ===(6)
+    events.collect.length must ===(7)
   }
 
   "Impressions DataFrame" should "allow parsing" in {
     val impressions = impressionsDF.map(Impression.parse)
-    impressions.collect.length must ===(2)
+    impressions.collect.length must ===(3)
   }
 
   "Both DataFrames" should "allow full outer join by advertiser and user" in {
